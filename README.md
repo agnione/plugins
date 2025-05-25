@@ -1,6 +1,6 @@
-# AgniOne PlugIns
+# AgniOne PlugIns V2
 
-This repo contains default AgniOne plugins.
+This repo contains default AgniOne plugins version v2.
 
 These plugins will be initiated and provided by the AgniOne application framework on demand by the AgniOne Units
 
