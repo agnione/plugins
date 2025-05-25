@@ -1,4 +1,4 @@
-# AgniOne HTTPClient Plugin
+# AgniOne HTTPClient Plugin V2
 
 This is the implemntation of the Web Socket protocol as AgniOne PlugIn.
 

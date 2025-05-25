@@ -1,4 +1,4 @@
-# AgniOne WebSocket PlugIn
+# AgniOne WebSocket PlugIn V2
 
 This is the implementation of the Web Socket protocol as AgniOne PlugIn.
 

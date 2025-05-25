@@ -15,10 +15,10 @@
 package main
 
 import (
-	"agnione/v1/src/afplugins/http/iahttpclient"
-	httptypes "agnione/v1/src/afplugins/http/types"
-	atypes "agnione/v1/src/appfm/types"
-	build "agnione/v1/src/lib"
+	"agnione/v2/src/afplugins/http/iahttpclient"
+	httptypes "agnione/v2/src/afplugins/http/types"
+	atypes "agnione/v2/src/appfm/types"
+	build "agnione/v2/src/lib"
 	"bytes"
 	"errors"
 	"fmt"
@@ -40,38 +40,35 @@ func (ahttp *AHTTPClient) content_decode(pResponse *fasthttp.Response) []byte {
 	/// Do we need to decompress the response?
 	/// if we have the Header then do it
 	_contentEncoding := pResponse.Header.Peek("Content-Encoding")
-	
-	defer func ()  {
-		_contentEncoding=nil
+
+	defer func() {
+		_contentEncoding = nil
 	}()
-	
+
 	var _body []byte
-	
+
 	if bytes.EqualFold(_contentEncoding, []byte("gzip")) {
-		_body,_= pResponse.BodyGunzip()
+		_body, _ = pResponse.BodyGunzip()
 	} else {
-		_body=pResponse.Body()
+		_body = pResponse.Body()
 	}
-	
+
 	return _body
-	
+
 }
 
 func (ahttp *AHTTPClient) add_request_headers(http_request httptypes.AHTTPRequest, request *fasthttp.Request) *fasthttp.Request {
-	
-	if http_request.Headers==nil{
+
+	if http_request.Headers == nil {
 		return request
 	}
-	
-	var _key string 
-	var _val string
-	
+
 	if len(http_request.Headers) > 0 {
-		for _key, _val= range http_request.Headers {
+		for _key, _val := range http_request.Headers {
 			request.Header.Add(_key, _val)
 		}
 	}
-	
+
 	return request
 }
 
@@ -98,7 +95,7 @@ func (ahttp *AHTTPClient) httpConnError(err error) (string, bool) {
 }
 
 func (ahttp *AHTTPClient) do_request(pHTTP_Request *httptypes.AHTTPRequest, http_method string) (*httptypes.AHTTPResponse, error) {
-	
+
 	if len(pHTTP_Request.URL) == 0 {
 		return nil, fmt.Errorf("invalid url. please provide the valid http url")
 	}
@@ -142,11 +139,11 @@ func (ahttp *AHTTPClient) do_request(pHTTP_Request *httptypes.AHTTPRequest, http
 	} else {
 		_err = fasthttp.Do(_hrequest, _hresponse)
 	}
-	
-	if _err!=nil{
-		return nil, errors.New("request failed: " +  _err.Error())
+
+	if _err != nil {
+		return nil, errors.New("request failed: " + _err.Error())
 	}
-	
+
 	/// First.. fetch the response status code and body to the response.
 	_response := httptypes.AHTTPResponse{StatusCode: _hresponse.StatusCode(),
 		Body: ahttp.content_decode(_hresponse),
@@ -154,13 +151,13 @@ func (ahttp *AHTTPClient) do_request(pHTTP_Request *httptypes.AHTTPRequest, http
 
 	/// add the response headers
 	_bHKeys := _hresponse.Header.PeekKeys()
-	
-	defer func(){
+
+	defer func() {
 		_bHKeys = nil
 	}()
-	
-	_response.Headers = make(map[string]string,len(_bHKeys))
-	
+
+	_response.Headers = make(map[string]string, len(_bHKeys))
+
 	var _key int
 	for _key = range _bHKeys {
 		_response.Headers[string(_bHKeys[_key])] = string(_hresponse.Header.Peek(string(_bHKeys[_key])))
@@ -169,7 +166,7 @@ func (ahttp *AHTTPClient) do_request(pHTTP_Request *httptypes.AHTTPRequest, http
 	///Second. If we have error then work on it
 	if _err != nil {
 		_errName, _ := ahttp.httpConnError(_err)
-		return nil, errors.New("request failed: " + _errName  + ". " +  _err.Error()) 
+		return nil, errors.New("request failed: " + _errName + ". " + _err.Error())
 	} else {
 		return &_response, nil /// return response with nil error
 	}
@@ -196,7 +193,7 @@ func (ahttp *AHTTPClient) GetID() (instance_id int) {
 // Get performs a HTTP GET request based on the given AHTTPRequest.
 // If success returns HTTPResponse with StatusCode 200 and Body with result data in []bytes
 // If failed then returns HTTPResponse with valid status code and error with meaningful error
-func (ahttp *AHTTPClient) Get (pHTTP_Request *httptypes.AHTTPRequest) (*httptypes.AHTTPResponse, error){
+func (ahttp *AHTTPClient) Get(pHTTP_Request *httptypes.AHTTPRequest) (*httptypes.AHTTPResponse, error) {
 
 	return ahttp.do_request(pHTTP_Request, fasthttp.MethodGet)
 

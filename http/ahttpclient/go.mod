@@ -1,6 +1,6 @@
 module ahttp.client
 
-go 1.22
+go 1.24
 
 require github.com/valyala/fasthttp v1.58.0
 

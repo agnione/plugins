@@ -25,9 +25,9 @@ Objective     :   Implement the web socket client using gorilla/websocket librar
 package main
 
 import (
-	iawsclient "agnione/v1/src/afplugins/websocket/iawsclient"
-	atypes "agnione/v1/src/appfm/types"
-	build "agnione/v1/src/lib"
+	iawsclient "agnione/v2/src/afplugins/websocket/iawsclient"
+	atypes "agnione/v2/src/appfm/types"
+	build "agnione/v2/src/lib"
 	"errors"
 	"fmt"
 	"net/http"
@@ -96,21 +96,21 @@ func (awsc *AgniWSClient) IsConnected() (bool, error) {
 // If success then returns the true,HTTP status code and nil.
 //
 // If failed then returns false,-1 and the error message
-func (awsc *AgniWSClient)Connect(pWS_URL string, pRequest_Headers *map[string][]string, pSub_protocols *[]string,pCompression bool) (bool, int, error) {
+func (awsc *AgniWSClient) Connect(pWS_URL string, pRequest_Headers *map[string][]string, pSub_protocols *[]string, pCompression bool) (bool, int, error) {
 
 	if len(pWS_URL) == 0 {
-		return false, -1, errors.New(strconv.Itoa(awsc.id)  + " invalid websocket url. " + pWS_URL)
+		return false, -1, errors.New(strconv.Itoa(awsc.id) + " invalid websocket url. " + pWS_URL)
 	}
 
 	awsc.wsURL = pWS_URL
 
 	_httpHeaders := http.Header{}
-	
-	defer func(){
-		_httpHeaders=nil
+
+	defer func() {
+		_httpHeaders = nil
 	}()
-	
-	if pRequest_Headers!=nil{
+
+	if pRequest_Headers != nil {
 		if len(*pRequest_Headers) > 0 {
 			for _key, _val := range *pRequest_Headers {
 				_httpHeaders[_key] = _val
@@ -120,18 +120,18 @@ func (awsc *AgniWSClient)Connect(pWS_URL string, pRequest_Headers *map[string][]
 
 	_tempwsCon, _httpResp, _err := websocket.DefaultDialer.Dial(awsc.wsURL, _httpHeaders)
 
-	defer func(){
-		_httpResp=nil
-		_err=nil
+	defer func() {
+		_httpResp = nil
+		_err = nil
 	}()
-	
+
 	if _err != nil {
-		return false, -1, errors.New( strconv.Itoa(awsc.id)  + " failed to connect to the websocket " +  awsc.wsURL + " ." +  _err.Error())
+		return false, -1, errors.New(strconv.Itoa(awsc.id) + " failed to connect to the websocket " + awsc.wsURL + " ." + _err.Error())
 	} else {
-		_status_code:=_httpResp.StatusCode
+		_status_code := _httpResp.StatusCode
 		awsc.wsCon = _tempwsCon
 		awsc.isConnected = true
-		awsc.wsCon.EnableWriteCompression(pCompression)	/// set the compression on/off
+		awsc.wsCon.EnableWriteCompression(pCompression) /// set the compression on/off
 		return true, _status_code, nil
 	}
 }
@@ -144,24 +144,24 @@ func (awsc *AgniWSClient)Connect(pWS_URL string, pRequest_Headers *map[string][]
 func (awsc *AgniWSClient) Disconnect() (bool, error) {
 
 	defer recover()
-	
+
 	if !awsc.isConnected {
-		return false, errors.New("websocket connection " + strconv.Itoa(awsc.id) +  " already closed")
+		return false, errors.New("websocket connection " + strconv.Itoa(awsc.id) + " already closed")
 	}
-	
-	defer func ()  {
+
+	defer func() {
 		awsc.wsCon.Close()
 	}()
 	_err := awsc.wsCon.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-	
-	defer func(){
-		_err=nil
+
+	defer func() {
+		_err = nil
 		awsc.wsCon = nil
 		awsc.isConnected = false
 	}()
-	
+
 	if _err != nil {
-		return false, errors.New("failed to close connection " + strconv.Itoa(awsc.id) + " | "  + awsc.wsURL + ". " + _err.Error())
+		return false, errors.New("failed to close connection " + strconv.Itoa(awsc.id) + " | " + awsc.wsURL + ". " + _err.Error())
 	} else {
 		return true, nil
 	}
@@ -174,14 +174,16 @@ func (awsc *AgniWSClient) Disconnect() (bool, error) {
 // Unless returns 0 as message type, nil and error
 func (awsc *AgniWSClient) Read() (messageType int, data *[]byte, err error) {
 
+	defer recover()
+
 	if !awsc.isConnected {
 		return -1, nil, errors.New("websocket connection " + strconv.Itoa(awsc.id) + " is disconnected")
 	}
 
-	if awsc.wsCon==nil{
+	if awsc.wsCon == nil {
 		return -1, nil, errors.New("websocket connection " + strconv.Itoa(awsc.id) + " is not initialized")
-	}	
-	
+	}
+
 	_msgType, _msgData, _err := awsc.wsCon.ReadMessage()
 	//fmt.Printf("reading a message from %s - DONE\n", awsc.wsURL)
 	if _err != nil {
@@ -193,8 +195,6 @@ func (awsc *AgniWSClient) Read() (messageType int, data *[]byte, err error) {
 	}
 }
 
-
-
 // Write writes the binary message to the fetched web socket connection.
 //
 // Returns true and nil if write is success.
@@ -202,21 +202,23 @@ func (awsc *AgniWSClient) Read() (messageType int, data *[]byte, err error) {
 // Unless returns false and error message
 func (awsc *AgniWSClient) Write(pMessage_Type int, pMessage *[]byte) (bool, error) {
 
+	defer recover()
+
 	if len(*pMessage) == 0 {
 		return false, errors.New("invalid data provided to write")
 	}
 
-	if awsc.wsCon==nil{
+	if awsc.wsCon == nil {
 		return false, errors.New("websocket connection " + strconv.Itoa(awsc.id) + " is not initialized")
 	}
-	
+
 	if !awsc.isConnected {
 		return false, errors.New("websocket connection " + strconv.Itoa(awsc.id) + " is disconnected")
 	}
-	
+
 	if _err := awsc.wsCon.WriteMessage(pMessage_Type, *pMessage); _err != nil {
 		awsc.isConnected = false
-		return false, errors.New("websocket connection " + strconv.Itoa(awsc.id) + " error while writing to " +  awsc.wsURL  + ". " +_err.Error())
+		return false, errors.New("websocket connection " + strconv.Itoa(awsc.id) + " error while writing to " + awsc.wsURL + ". " + _err.Error())
 	} else {
 		awsc.isConnected = true
 		return true, nil
