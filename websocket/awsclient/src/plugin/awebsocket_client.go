@@ -102,8 +102,6 @@ func (awsc *AgniWSClient) Connect(pWS_URL string, pRequest_Headers *map[string][
 		return false, -1, errors.New(strconv.Itoa(awsc.id) + " invalid websocket url. " + pWS_URL)
 	}
 
-	awsc.wsURL = pWS_URL
-
 	_httpHeaders := http.Header{}
 
 	defer func() {
@@ -118,7 +116,7 @@ func (awsc *AgniWSClient) Connect(pWS_URL string, pRequest_Headers *map[string][
 		}
 	}
 
-	_tempwsCon, _httpResp, _err := websocket.DefaultDialer.Dial(awsc.wsURL, _httpHeaders)
+	_tempwsCon, _httpResp, _err := websocket.DefaultDialer.Dial(pWS_URL, _httpHeaders)
 
 	defer func() {
 		_httpResp = nil
@@ -128,6 +126,7 @@ func (awsc *AgniWSClient) Connect(pWS_URL string, pRequest_Headers *map[string][
 	if _err != nil {
 		return false, -1, errors.New(strconv.Itoa(awsc.id) + " failed to connect to the websocket " + awsc.wsURL + " ." + _err.Error())
 	} else {
+		awsc.wsURL = pWS_URL
 		_status_code := _httpResp.StatusCode
 		awsc.wsCon = _tempwsCon
 		awsc.isConnected = true

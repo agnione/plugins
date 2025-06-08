@@ -172,7 +172,7 @@ func (ahttp *AHTTPClient) do_request(pHTTP_Request *httptypes.AHTTPRequest, http
 	}
 }
 
-// Cretes a new isntance of IAHTTPClient
+// Certes a new instance of IAHTTPClient
 func (ahttp *AHTTPClient) New() interface{} {
 
 	return atypes.ConvertStoI[iahttpclient.IAHTTPClient](new(AHTTPClient))
@@ -185,7 +185,7 @@ func (ahttp *AHTTPClient) Initialize(pInstance_ID int) bool {
 	return true
 }
 
-// GetID retuns the pre-set id of the current instance
+// GetID returns the pre-set id of the current instance
 func (ahttp *AHTTPClient) GetID() (instance_id int) {
 	return ahttp.id
 }
