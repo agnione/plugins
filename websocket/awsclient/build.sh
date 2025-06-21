@@ -3,7 +3,7 @@
 # This how we want version, name the binary output
 VESRION=1.0.0
 SOURCE=./plugin/awebsocket_client.go
-BINARY=./plugin/awebsocket_client.so
+BINARY=./plugin/awsclient.so
 
 
 BuildTime=`date`
@@ -12,7 +12,7 @@ BuildGoVersion=`go version`
 
 
 
-LDFLAGS=" -X 'awebsocket.client/src/build.Version=${VESRION}' \
+LDFLAGS=" -s -w -X 'awebsocket.client/src/build.Version=${VESRION}' \
 -X 'awebsocket.client/src/build.User=$(id -u -n)' \
 -X 'awebsocket.client/src/build.Time=${BuildTime}' \
 -X 'awebsocket.client/src/build.BuildGoVersion=${BuildGoVersion}' "
